@@ -36,7 +36,7 @@
   "fontSize": "16",
   "colourRows": true,
   "viewDetail": true,
-  "useModel": true,
+  "useModel": false,
   "hasExcel": false,
   "filterSettings": "3",
   "textFieldRenderAsText": false,
@@ -46,7 +46,7 @@
   "listenForServiceViewEvents": true,
   "colourFirstColumn": true,
   "logLevel": "4",
-  "hasUsers": true,
+  "hasUsers": false,
   "enableFontDropdown": true,
   "defaultSortFieldDirection": "-desc",
   "serviceSummaryColumns": {
@@ -60,7 +60,7 @@
   },
   "actionsURL": "/rest/user",
   "showClosedAlerts": true,
-  "defaultSelector": "/nn/rest/dataView/71f92eb3-0fa4-4186-ba69-858454615e36",
+  "defaultSelector": false,
   "publicSelectors": [
     {
       "queryBuilderInstanceID": "alertsBySeverity",

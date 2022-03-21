@@ -1,1 +1,359 @@
+<script>
 
+$(document).on('click', '.allmainalerts', function () {
+    NET_NOW.dashboard
+        .setVar('allalerts', 'selectedall')
+        .updateWidgetsInClass('AID');             
+});
+
+$(document).on('click', '.maintList', function () {
+    NET_NOW.dashboard
+        .setVar('allalerts', '')
+        .updateWidgetsInClass('AID');             
+    
+});
+
+$(document).on('click', '.opentab', function () {
+	var url = $(this).data('url') + '?',
+		widget = NET_NOW.dashboard.getCurrentWidget($(this));
+	console.log(url)
+	if (url) {
+		console.log('Searching for selected alerts in', widget.get('widgetId'));
+		
+		$('th.selector .selectable:checked', $(widget.view.$el)).each(function () {
+			var alertId = $(this).closest('tr').data('row-id');
+
+			if (alertId) {
+				console.log('Opening new tab for URL', url + alertId);
+				window.open(url + alertId, '_blank');
+			}
+		});
+
+	} else {
+		console.error('Link to open a new tab does not specify a URL');
+	}
+});
+
+// Open Maintenance Generator
+$(document).on('click', '.generator', function (e) {
+    window.open('/nn/dashboard/show/name/maingen', '_blank');
+});
+
+</script>
+
+<script>
+
+var autoe = jQuery.Event( "keydown", {
+    keyCode: 13
+});
+
+// Query for maintenance field
+NET_NOW.dashboard.setParam('maintenanceField','sysmntcls');
+$.get('/nn/alertInboundMapping/list?search=SMC').then(function(res){NET_NOW.dashboard.setParam('maintenanceField',$('td:contains(SMC) +td',res).text().trim())})
+//
+
+// on click of maint record, set as active and update table
+$(document).on('click', '.childNode', function(e){	
+	console.log("Adding new Filter...");
+	
+	//set vars
+	var ID = $(this).attr('id'); 
+	var name = $(this).attr('name'); 
+	
+	var alertField = NET_NOW.dashboard.getParam('maintenanceField');
+	var alertValue = name + "_" + ID;
+	var operatorValue = "eq";
+	console.log('Adding filter item:',{ field: alertField, operator: operatorValue, value: alertValue })
+	// set filter
+	var grid = $('[role="grid"]')
+	.parents('.k-widget')
+	.data("kendoGrid")
+	//.filter({ field: alertField, operator: operatorValue, value: alertValue }); // Doesn't work if uf.sysctls isn't in selector
+    var gridURL = grid.dataSource.options.transport.read.url
+	
+    gridURL = gridURL.replace(new RegExp('[?&]*&uf.'+alertField+'.*[&#]*','g'),'')+ ('&uf.'+alertField +'-'+operatorValue+'='+alertValue);
+
+    grid.dataSource.options.transport.read.url = gridURL;
+    console.log(grid.dataSource.transport.options.read)
+    grid.dataSource.fetch(); // Load
+	$('.sublinks .active').removeClass('active');
+	$(this).addClass('active');
+	
+	NET_NOW.dashboard.setVar('groupName', name).setVar('recordName', ID);
+	//NET_NOW.dashboard.updateWidgetsInClass('maintList');
+	
+    // Populate Start/End date in correct timezone
+    $.ajax({
+        url: ( 'https://'+NET_NOW.dashboard.getVar('maintenanceHost')+"/api/v1/record?GroupName=" + name + "&RecordName=" + ID + "&dashboard=true")
+    })
+	.done(function (resp) {
+		var xml = resp;
+		var rawsdate = xml.getElementsByTagName("sdate")[0].innerHTML;
+		var rawedate = xml.getElementsByTagName("edate")[0].innerHTML;
+
+		require.config({
+            paths: {
+                "moment": "/nn/assets/moment/moment"
+            }
+        });
+        
+        require(['moment-timezone'], function (moment) {
+            moment.tz.add("Europe/London|LMT GMT BST BDST|1.f 0 -10 -20|01212121212121212121212121212121212121212121212121232323232321212321212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121|-4VgnW.J 2KHdW.J Rc0 1fA0 14M0 1fc0 1g00 1co0 1dc0 1co0 1oo0 1400 1dc0 19A0 1io0 1io0 WM0 1o00 14o0 1o00 17c0 1io0 17c0 1fA0 1a00 1lc0 17c0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1cM0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1io0 1qM0 Dc0 2Rz0 Dc0 1zc0 Oo0 1zc0 Rc0 1wo0 17c0 1iM0 FA0 xB0 1fA0 1a00 14o0 bb0 LA0 xB0 Rc0 1wo0 11A0 1o00 17c0 1fA0 1a00 1fA0 1cM0 1fA0 1a00 17c0 1fA0 1a00 1io0 17c0 1lc0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1a00 1qM0 WM0 1qM0 11A0 1o00 WM0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1tA0 IM0 90o0 U00 1tA0 U00 1tA0 U00 1tA0 U00 1tA0 WM0 1qM0 WM0 1qM0 WM0 1tA0 U00 1tA0 U00 1tA0 11z0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 14o0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00|10e6");
+
+            var sdate = moment.utc(rawsdate);
+            var edate = moment.utc(rawedate);
+            
+            var mntStartDate = moment(rawsdate).tz("Europe/London").format('YYYY/MM/DD HH:mm:ss');
+            var mntEndDate = moment(rawedate).tz("Europe/London").format('YYYY/MM/DD HH:mm:ss');
+            
+            var mntDuration = moment.duration(edate.diff(sdate));
+            var hours = mntDuration.hours();
+            var minutes = mntDuration.minutes();
+            var seconds = mntDuration.seconds();
+            //console.log("Duration: " + hours + "H " + minutes + "M " + seconds + "S");
+            var mntDurationTotal = (hours + "h " + minutes + "m " + seconds + "s");
+            console.log(mntDurationTotal);
+            
+            //var hours = duration.asHours();
+            
+            console.log('START  :: ', rawsdate);
+            console.log('END :: ', rawedate);
+            
+            console.log('START U :: ', sdate);
+            console.log('END U  :: ', edate);
+            
+            console.log('START F :: ', mntStartDate);
+            console.log('END F :: ', mntEndDate);
+            
+            var mntStartDateUTC = (mntStartDate + " UTC");
+            var mntEndDateUTC = (mntEndDate + " UTC");
+            
+            NET_NOW.dashboard.setVar('mntStartDate', mntStartDateUTC).setVar('mntStartDateRaw', mntStartDate).setVar('mntEndDate', mntEndDateUTC).setVar('mntEndDateRaw', mntEndDate).setVar('mntDurationTotal', mntDurationTotal);
+            NET_NOW.dashboard.updateWidgetsInClass('maintList');
+
+			//$('.mntStartDate').val(sdate.tz("Europe/London").format('YYYY/MM/DD HH:mm:ss'));
+            //$('.mntEndDate').val(edate.tz("Europe/London").format('YYYY/MM/DD HH:mm:ss'));
+        });
+        
+    });
+    
+    //NET_NOW.dashboard.setVar('groupName', name).setVar('recordName', ID);
+	NET_NOW.dashboard.updateWidgetsInClass('maintList');
+});
+
+
+var setAlertMessage = function(alertMessage) {
+	$('.alert').html(alertMessage);
+	$('.errors').show();
+};
+
+// on click of remove record button
+$(document).on('click', '.removeRecord', function(e) {
+	$('.errors').hide();
+	if(confirm("Remove Record?") == true) {
+		var data = '';
+		console.log('remove maint record clicked');
+		var selectedGroup = NET_NOW.dashboard.getVar("groupName");
+		var selectedRecord = NET_NOW.dashboard.getVar("recordName");
+		console.log('removing group: ' + selectedGroup + ', record: ' + selectedRecord);
+		
+		if(!selectedRecord || !selectedGroup) {
+			setAlertMessage('No Record Selected');
+			return;
+		}
+		var url = 'https://'+NET_NOW.dashboard.getVar('maintenanceHost')+'/api/v1/record';
+		data += 'action=<SR><gpname>';
+		data += selectedGroup;
+		data += '</gpname><rdname>';
+		data += selectedRecord;
+		data += '</rdname><stoppedby>ppadmin</stoppedby></SR>';
+		console.log('Webservice call details: ' + url+data);
+		
+		callWebService(url.replace(/\/\?/g,'?'), data, "Successfully stopped record", true);
+		NET_NOW.dashboard.updateWidget("widget7");
+	};
+});
+
+// on click of modify record
+$(document).on('click', '.modifyRecord', function(e) {
+	$('.errors').hide();
+	changeToEdit();
+
+	$('#saveText').show();
+
+	$('#datetimepicker').datetimepicker({
+        format: 'yyyy/mm/dd hh:ii:ss',
+	    autoclose: true
+    });
+	
+	$('#datetimepicker2').datetimepicker({
+        format: 'yyyy/mm/dd hh:ii:ss',
+	    autoclose: true
+    });
+
+	var activeRecord = $('.active');
+	var parentClass = activeRecord.parent().attr('class');
+	console.log(parentClass);
+	
+	// only enable start edit if record is waiting
+	/**
+	* Doesn't work in IE
+	if(parentClass.includes('auto_waiting')) {
+		console.log('record is active, cannot edit start date');
+		$('#startDate').hide();
+		$('#editStartDate').show();
+	}*/
+	
+	if(activeRecord.parent().hasClass('auto_waiting')) {
+		console.log('record is active, cannot edit start date');
+		$('#startDate').hide();
+		$('#editStartDate').show();
+	}
+	
+    $(".icon-arrow-left").addClass("glyphicon-chevron-left");
+	$(".icon-arrow-right").addClass("glyphicon-chevron-right");
+	
+	// always enable end edit
+	$('#endDate').hide();
+	$('#editEndDate').show();
+	
+});
+
+$(document).on('click', '.discardChanges', function(e) {
+	changeFromEdit();
+
+	$('.alert').html("Discarded Changes");
+	$('.errors').removeClass('alert-danger').addClass('alert-success');
+	$('.errors').show();
+	setTimeout(function() {
+		$('.errors').hide();
+	}, 4000);
+});
+
+$(document).on('click', '.saveChanges', function(e) {
+	$('.errors').hide();
+	var data = '';
+	var url = NET_NOW.dashboard.getVar('maintenanceHost')+'/api/v1/record'
+	var selectedGroup = NET_NOW.dashboard.getVar("groupName");
+	var selectedRecord = NET_NOW.dashboard.getVar("recordName");
+	var newEnd = $('#datetimepicker').val();	
+	var newStart = $('#datetimepicker2').val();
+	
+	if(newEnd < newStart) {
+		setAlertMessage('End time cannot be before start time');
+		return;
+	}
+	var activeRecord = $('.active');
+	var parentClass = activeRecord.parent().attr('class');
+	console.log(parentClass);
+		
+	data += 'action=<AR><gpname>';
+	data += selectedGroup;
+	data += '</gpname><rdname>';
+	data += selectedRecord;
+	data += '</rdname>';
+	data += '<edate>' + newEnd + '</edate>';	
+	
+	// only enable start edit if record is waiting
+	/**
+	* Doesn't work in IE...
+	
+	if(parentClass.('auto_waiting')) {
+		data += '<sdate>' + newStart + '</sdate>';
+	}*/
+	
+	if(activeRecord.parent().hasClass('auto_waiting')) {
+		data += '<sdate>' + newStart + '</sdate>';
+	}
+	
+	data += '<duration></duration><alterby>' + $('#loggedInUser').html() + '</alterby></AR>';
+	console.log('Webservice call details: ' + url+data);
+
+	callWebService(url, data, "Successfully edited record", false);
+	
+	// Update record table to show updated end date and duration period 
+	var startDateRaw = NET_NOW.dashboard.getVar('mntStartDateRaw');
+	var newEnd = newEnd;
+	var newEndUTC = newEnd + " UTC";
+	
+	require(['moment-timezone'], function (moment) {
+        moment.tz.add("Europe/London|LMT GMT BST BDST|1.f 0 -10 -20|01212121212121212121212121212121212121212121212121232323232321212321212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121212121|-4VgnW.J 2KHdW.J Rc0 1fA0 14M0 1fc0 1g00 1co0 1dc0 1co0 1oo0 1400 1dc0 19A0 1io0 1io0 WM0 1o00 14o0 1o00 17c0 1io0 17c0 1fA0 1a00 1lc0 17c0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1cM0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1io0 1qM0 Dc0 2Rz0 Dc0 1zc0 Oo0 1zc0 Rc0 1wo0 17c0 1iM0 FA0 xB0 1fA0 1a00 14o0 bb0 LA0 xB0 Rc0 1wo0 11A0 1o00 17c0 1fA0 1a00 1fA0 1cM0 1fA0 1a00 17c0 1fA0 1a00 1io0 17c0 1lc0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1a00 1qM0 WM0 1qM0 11A0 1o00 WM0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1tA0 IM0 90o0 U00 1tA0 U00 1tA0 U00 1tA0 U00 1tA0 WM0 1qM0 WM0 1qM0 WM0 1tA0 U00 1tA0 U00 1tA0 11z0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 14o0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00|10e6");
+
+        var sdate = moment.utc(startDateRaw);
+        var edate = moment.utc(newEnd);
+	
+	    var mntDuration = moment.duration(edate.diff(sdate));
+        var hours = mntDuration.hours();
+        var minutes = mntDuration.minutes();
+        var seconds = mntDuration.seconds();
+
+        var mntDurationTotal = (hours + "h " + minutes + "m " + seconds + "s");
+
+	    NET_NOW.dashboard.setVar('mntEndDate', newEndUTC).setVar('mntDurationTotal', mntDurationTotal);
+        NET_NOW.dashboard.updateWidgetsInClass('maintList');
+    
+	});
+
+	changeFromEdit();
+});
+
+var changeFromEdit = function() {
+	$('.saveChanges > i').removeClass('glyphicon-ok').addClass('glyphicon-pencil');
+	$('.discardChanges > i').removeClass('glyphicon-remove').addClass('glyphicon-trash');
+	
+	$('.saveChanges').blur().addClass('modifyRecord').removeClass('saveChanges').prop('title', 'Edit Maintenance Record');
+	$('.discardChanges').blur().addClass('removeRecord').removeClass('discardChanges').prop('title', 'Delete Maintenance Record');
+
+	$('#saveText').hide();
+	$('#endDate').show();
+	$('#editEndDate').hide();
+	$('#startDate').show();
+	$('#editStartDate').hide();
+};
+
+var changeToEdit = function() {
+	$('.modifyRecord > i').removeClass('glyphicon-pencil').addClass('glyphicon-ok');
+	$('.removeRecord > i').removeClass('glyphicon-trash').addClass('glyphicon-remove');
+	
+	$('.modifyRecord').blur().addClass('saveChanges').removeClass('modifyRecord').prop('title', 'Save Changes');
+	$('.removeRecord').blur().addClass('discardChanges').removeClass('removeRecord').prop('title', 'Discard Changes');
+};
+
+var callWebService = function(url, data, successMessage, forceRefresh) {
+	$.ajax ({
+		url: url,
+		data: data,
+                method: 'POST',
+		success: function(data) {
+			console.log(data);
+			console.log("success");
+			$('.alert').html(successMessage);
+			$('.errors').removeClass('alert-danger').addClass('alert-success');
+			$('.errors').show();
+			
+			if(forceRefresh) {
+				NET_NOW.dashboard.deleteVar('groupName');
+				NET_NOW.dashboard.deleteVar('recordName');
+			}
+
+			setTimeout(function() {
+				NET_NOW.dashboard.updateWidgetsInClass('maintList');
+			}, 2000);
+
+			setTimeout(function() {
+				$('.errors').hide();
+			}, 3000);
+		},
+		error: function(data) {
+			console.log("error");
+			console.log(data);
+			if(data.responseText == "") {
+				setAlertMessage('Please click <a href="/piWS/">/piWS/</a> and try again');
+				return;
+			}
+		}
+	});
+};
+
+$(document).on('nn_all_created', function(){$('#menu > .list-group > a:first-child').click();});
+</script>

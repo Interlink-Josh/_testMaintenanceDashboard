@@ -1,0 +1,101 @@
+<#-- Example HTML table built using the test data stream for "single series charts" -->
+<#setting datetime_format="yyyy/MM/dd HH:mm:ss">
+
+ <div class="scroll" style="background-color:white;">   
+    <table id="maintTable" class="table">
+        <thead>
+            <tr>
+                <#if p.recordName??>
+                    <#if p.recordName == "">
+                        <th colspan="4" id="mainHeader" valign="bottom">Selected Record: None
+                    <#else>
+                        <th colspan="4" id="mainHeader" valign="bottom">Selected Record: ${p.groupName!""} ${p.recordName!"None"}
+                    </#if>
+                <#else>
+                    <th colspan="4" id="mainHeader" valign="bottom">Selected Record: ${p.groupName!""} ${p.recordName!"None"}
+                </#if>
+                    
+                    <button 
+                        <#if !p.groupName??>disabled</#if>
+                        id="showExpression" data-toggle="modal" data-target="#myModal" class="btn btn-default pull-left showExpression" title="Show Expression" style="margin-right:4px;"><i class='glyphicon glyphicon-info-sign'></i>
+                    </button>
+                    <!--
+                    <button 
+                        <#if !p.groupName??>disabled</#if>
+                        id="removeRecord" class="btn btn-default pull-right removeRecord" title="Delete Maintenance Record"><i class='glyphicon glyphicon-trash'></i>
+                    </button>
+                    -->
+                    <!--
+                    <button 
+                        <#if !p.groupName??>disabled</#if> 
+                        id="modifyRecord" class="btn btn-default pull-right modifyRecord" title="Edit Maintenance Record"><i class='glyphicon glyphicon-pencil'></i>
+                    </button>
+                    -->
+                   
+                    <p id="saveText" class="pull-right" style="margin-top: 0.5%; font-style: italic; display:none;" valign="middle">&nbsp;Save?&nbsp;</p>
+                    
+                </th>
+            </tr>       
+        </thead>
+   
+        <tbody id="tableBody">
+            <tr>
+                <td valign="middle">Status</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//status'][0]!"xxx"}' disabled></td>
+                <td valign="middle">Class</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//class'][0]!"xxx"}' disabled></td>
+            </tr>
+            <tr>
+                <td>Start Type</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//stype'][0]!"xxx"}' disabled></td>
+                <td>Start Date</td>
+				<td style="text-align: center" id="startDate"><input class="iss-form-control mntStartDate" style="text-align: center; width: 100%" type="text" placeholder='${x['//sdate'][0]!"xxx"}' disabled></td>
+                <td style="text-align: center; display:none;" id="editStartDate">
+				    <input type="text" class='iss-form-control tableRow' style="text-align: center; width: 100%" value="" id="datetimepicker2">
+            	</td>
+            </tr>
+            <tr>
+                <td>End Type</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//etype'][0]!"xxx"}' disabled></td>
+                <td>End Date</td>
+                <td style="text-align: center" id="endDate"><input class="iss-form-control mntEndDate" style="text-align: center; width: 100%" type="text" placeholder='${x['//edate'][0]!"xxx"}' disabled></td>
+                <td style="text-align: center; display:none;" id="editEndDate">
+				    <input type="text" class='iss-form-control tableRow' style="text-align: center; width: 100%" value="" id="datetimepicker">
+            	</td>
+            </tr>
+            <tr>
+                <td>Action</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//action'][0]!"xxx"}' disabled></td>
+                <td>Duration</td>
+                <td style="text-align: center"><input class="iss-form-control mntDurationTotal" style="text-align: center; width: 100%" type="text" placeholder='${x['//duration'][0]!"xxx"}' disabled></td>
+            </tr>
+            <tr>
+                <td>Selector Name</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//selname'][0]!"xxx"}' disabled></td>
+                <td>Selector Group</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//selgroup'][0]!"xxx"}' disabled></td>
+            </tr>
+            <tr>
+                <td>Change Record/Text</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//change'][0]!"xxx"}' disabled></td>
+                <td>Started By</td>
+                <td style="text-align: center"><input class="iss-form-control" style="text-align: center; width: 100%" type="text" placeholder='${x['//startedby'][0]!"xxx"}' disabled></td>
+            </tr>
+            <tr>
+                <td>Started On</td>
+                <td style="text-align: center"><input class="iss-form-control mntStartDate" style="text-align: center; width: 100%" type="text" placeholder='${x['//sdate'][0]!"xxx"}' disabled></td>
+                <td>End At</td>
+                <td style="text-align: center"><input class="iss-form-control mntEndDate" style="text-align: center; width: 100%" type="text" placeholder='${x['//edate'][0]!"xxx"}' disabled></td>
+            </tr>       
+        </tbody>
+    </table>
+    <style>
+     #${widget.widgetId} #mainHeader {
+         color: #333;
+         line-height: 33px;
+         font-family: 'Roboto', serif;
+        font-size: 1em;
+        font-weight: normal;
+     }
+    </style>
+</div>

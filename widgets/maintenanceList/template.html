@@ -1,0 +1,55 @@
+<#-- Macro for generating node content -->
+<#macro displayRecords type name groupName items>
+    <#if (items['record']?size > 0) >
+    	<a class="list-group-item panel-heading accordion-toggle collapsed" href='#' data-toggle='collapse' data-target='.${type}' data-parent='#'><span class="badge pull-left">${items['record']?size}</span>&nbsp ${name}</a>
+    		<div class='sublinks collapse ${type}'>
+    			<#list items?children as a>
+    				<div class="list-group-item childNode" id="${a['rdname'][0]}" name="${groupName!"err"}">
+					    ${a['rdname'][0]} <#if a['change'][0]??>- ${a['change'][0]}</#if>
+					</div>
+    			</#list>	
+    		</div>
+    </#if>
+</#macro>
+
+<#-- Macro for displaying errors -->
+<#macro displayError message>
+    	<div class="panel list-group">
+    		<a class="list-group-item panel-heading">${message}</a>
+    	</div>
+</#macro>
+
+<div id="menu" class="panel" style='height: 100%; overflow-y: scroll;'>
+<#if (x['//groups'].**?size > 0)>
+    <#list x['//groups']?children as a>
+        <#assign name = a.@name />
+        <div class="panel list-group">
+            <a class="list-group-item panel-heading accordion-toggle collapsed" href='#' data-toggle='collapse' data-target='#${name!"err"}' data-parent='#menu'>${name!"err"}</a>
+            <div id='${name!"err"}' class='sublinks collapse' data-type="maintenance">
+                ${log.info('Calling displayRecords')}
+                <@displayRecords type="auto_active" name='Active' groupName=name items=a.active/>
+                <@displayRecords type="auto_waiting" name='Waiting' groupName=name items=a.waiting/>
+            </div>				
+        </div>
+    </#list>
+<#else>
+    <@displayError message="No Records" />		
+</#if>
+</div>
+<style>
+#${widget.widgetId} .panel-heading {
+    height: 45px;
+}
+
+#${widget.widgetId} .list-group-item {
+   cursor:pointer;
+}
+
+
+
+#${widget.widgetId} .sublinks .panel-heading.accordion-toggle[aria-expanded="true"] {
+   border-left: 2px solid #00cc00;
+   border-bottom-left-radius: 0;
+   border-top-left-radius: 0;
+}
+</style>

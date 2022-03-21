@@ -1,0 +1,26 @@
+<button type="button" class="btn btn-default allmainalerts" id="AllAlerts">All Maintenance Alerts</button>
+
+<style>#AllAlerts {margin:4px; float:right;}</style>
+<script>
+
+var autoe = jQuery.Event( "keydown", {
+    keyCode: 13
+});
+
+// On click of maint record, set as active and update table
+
+$('#AllAlerts').click(function (e) {
+
+	// Clear All Filters
+    //$('#NETNOW_kendo-grid-widget-AID').data("kendoGrid").dataSource.filter({});
+    $("#NETNOW_kendo-grid-widget-AID").data("kendoGrid").refresh();
+    
+    NET_NOW.dashboard.setVar('groupName', "").setVar('recordName', "").setVar('mntStartDate', "xxx").setVar('mntEndDate', "xxx").setVar('mntDurationTotal', "xxx").setVar('userTimezoneShort', "");
+	NET_NOW.dashboard.updateWidgetsInClass('maintList');
+    
+    // Collapse Maintenance List
+    $('#ASI').removeClass("in");
+
+});
+
+</script>

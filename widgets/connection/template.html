@@ -1,0 +1,59 @@
+<div class="form-group"  title="Maintenance Host" style="margin-top:2%;">
+    <!-- <label for="connectionList">Maintenance Host</label> -->
+    <select class="form-control" id="connectionList" placeholder="Maintenance Host">
+    </select>
+  </div>
+  <script>
+  
+  $(document).on('nn_all_created', function(){
+        var connectionWidgetList = ['maintenanceList','recordDisplay','dataWidget'];
+        var connectionsURL = '/nn/services/Connection?host-!eq=internal&instance-!eq=internal&i=host-maintenanceHost-maintenanceHostTimeZone&format=application/json';
+        var optionHTML = function(item){var value=item['properties']['host'] + item['properties']['maintenanceHost'] ; var label = item['properties']['host']; return '<option data-timezone="'+item['properties']['maintenanceHostTimeZone']+'" value="'+value+'">'+label+'</option>'};
+        
+        function maintenanceHostChange(e,d){
+            var val = e.currentTarget ? e.currentTarget.value : e;
+            NET_NOW.dashboard.setVar('maintenanceHost', val);
+            $.each(connectionWidgetList, function(i,w){
+                var widget = NET_NOW.dashboard.getWidget(w);
+                var oldURL  = widget.attributes.chartDataSource;
+                var newURL = oldURL.replace(/^.*\/maintenance/, val)
+                // console.log('newURL',newURL)
+                // Update widget
+                widget.attributes.chartDataSource = newURL;
+                widget.reload();
+            });
+            // Set connection timezone display
+            var timezoneDisplaySelector = '#connection-timezone';
+            var connectionListSelector = '#connectionList';
+            var targetVal = $(connectionListSelector).val();
+            var maintenanceHostTimeZone = $(connectionListSelector).children().filter(function(i,e){return $(e).val() == targetVal}).data('timezone');
+            console.log(maintenanceHostTimeZone,e.currentTarget);
+            require(['moment-timezone'], function(moment){
+            console.log(maintenanceHostTimeZone);
+            maintenanceHostTimeZone = maintenanceHostTimeZone || moment.tz.guess();
+                $(timezoneDisplaySelector).text(maintenanceHostTimeZone);
+            }.bind(maintenanceHostTimeZone));
+            
+        };
+        
+        // Get connections
+        $.ajax(connectionsURL).then(function(res){
+            var connections = res['response']['content'];
+            //connections.push({'properties': {'host': 'example.com','maintenanceHost':'/service/maintenance'}})
+            $('#${widget.widgetId}').data('connections', $.extend([],connections));
+            // Clear options
+            $('#connectionList option').remove();
+            // re add options
+            var firstConnection = '/services/maintenance/';
+            $.each(connections, function(index, item){ if(index === 0){firstConnection = item['properties']['host'] + item['properties']['maintenanceHost'];};$('#connectionList').append(optionHTML(item));});
+            // initialize
+            maintenanceHostChange(firstConnection);
+            if($('#connectionList option').length <= 1){
+                $('#connectionList').attr('disabled', true);
+            };
+        });
+        
+        $('#connectionList').off('change').on('change', maintenanceHostChange);
+        
+  });
+  </script>

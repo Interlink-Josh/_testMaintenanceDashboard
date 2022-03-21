@@ -1,0 +1,11 @@
+<div id='mainHeader'  style='height: 100%;  padding-top: 1%; padding-left: 6px;'>
+    <#if p.recordName??>
+        <#if p.recordName == "">
+            <p>All Maintenance Alerts</p>
+        <#else>
+            <p>Record Name: ${p.recordName!"All Maintenance"}</p>
+        </#if>
+    <#else>
+        <p>${p.recordName!"All Maintenance Alerts"}</p>
+    </#if>
+</div>

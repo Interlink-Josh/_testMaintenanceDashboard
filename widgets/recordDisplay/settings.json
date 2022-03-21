@@ -1,0 +1,1 @@
+{"degradedServices":{"always":false,"offline":false,"peak":false,"offpeak":false},"loadOwnData":false,"serviceSummaryColumns":{"slaImpact":true,"slaType":true,"managed":true,"targetFix":true,"details":true,"history":false,"availability":true},"withAlerts":{"always":false,"offline":false,"peak":false,"offpeak":false}}

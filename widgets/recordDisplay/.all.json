@@ -1,7 +1,7 @@
 {
   "nn_update_when_hidden": true,
   "nn_uses_views": false,
-  "nn_dashboard_id": 68,
+  "nn_dashboard_id": 73,
   "nn_widget_id": "recordDisplay",
   "nn_initial_widget_view": "",
   "nn_width": "72%",
@@ -29,7 +29,7 @@
   "nn_chart_data_source": "https://${p.maintenanceHost!\"/services/maintenance\"}/api/v1/record?GroupName=${p.groupName!\"\"}&RecordName=${p.recordName!\"\"}&dashboard=true",
   "nn_settings": "{\"degradedServices\":{\"always\":false,\"offline\":false,\"peak\":false,\"offpeak\":false},\"loadOwnData\":false,\"serviceSummaryColumns\":{\"slaImpact\":true,\"slaType\":true,\"managed\":true,\"targetFix\":true,\"details\":true,\"history\":false,\"availability\":true},\"withAlerts\":{\"always\":false,\"offline\":false,\"peak\":false,\"offpeak\":false}}",
   "nn_data_source_type": "XML",
-  "nn_id": 346,
+  "nn_id": 396,
   "nn_hide_on_startup": false,
   "nn_y_axis": "",
   "nn_widgets_idx": 4

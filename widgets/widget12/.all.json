@@ -1,7 +1,7 @@
 {
   "nn_update_when_hidden": true,
   "nn_uses_views": false,
-  "nn_dashboard_id": 68,
+  "nn_dashboard_id": 73,
   "nn_data_converter_template": "",
   "nn_widget_id": "widget12",
   "nn_initial_widget_view": "",
@@ -30,8 +30,8 @@
   "nn_chart_data_source": "",
   "nn_settings": "{\"degradedServices\":{\"always\":false,\"offline\":false,\"peak\":false,\"offpeak\":false},\"loadOwnData\":false,\"serviceSummaryColumns\":{\"slaImpact\":true,\"slaType\":true,\"managed\":true,\"targetFix\":true,\"details\":true,\"history\":false,\"availability\":true},\"withAlerts\":{\"always\":false,\"offline\":false,\"peak\":false,\"offpeak\":false}}",
   "nn_data_source_type": "None",
-  "nn_id": 345,
+  "nn_id": 400,
   "nn_hide_on_startup": false,
   "nn_y_axis": "",
-  "nn_widgets_idx": 3
+  "nn_widgets_idx": 7
 }
